@@ -18,9 +18,9 @@ export const IssueSchema = z.object({
 export const CreateIssueSchema = z.object({
   title: z.string().min(1, 'Title is required'),
   content: z.string().optional(),
-  status: IssueStatusSchema.default('todo'),
-  priority: IssuePrioritySchema.default('medium'),
-  type: IssueTypeSchema.default('task'),
+  status: IssueStatusSchema,
+  priority: IssuePrioritySchema,
+  type: IssueTypeSchema,
 });
 
 export const UpdateIssueSchema = IssueSchema.partial().omit({ id: true, createdAt: true, updatedAt: true });

@@ -1,5 +1,5 @@
 import { CheckCircle2, AlertCircle, Bookmark } from 'lucide-react';
-import { IssuePriority, IssueType } from '@/lib/db';
+import { IssuePriority, IssueType } from '@/lib/schema';
 
 export const getPriorityIcon = (priority: IssuePriority) => {
   switch (priority) {

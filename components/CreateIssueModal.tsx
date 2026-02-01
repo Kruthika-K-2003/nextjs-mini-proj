@@ -23,6 +23,8 @@ export default function CreateIssueModal({ isOpen, onClose }: CreateIssueModalPr
   } = useForm<CreateIssueInput>({
     resolver: zodResolver(CreateIssueSchema),
     defaultValues: {
+      title: '',
+      content: '',
       status: 'todo',
       priority: 'medium',
       type: 'task',
