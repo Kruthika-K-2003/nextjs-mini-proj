@@ -6,13 +6,15 @@ import { useEffect, useState, useMemo } from 'react';
 import IssueCard from './IssueCard';
 import { updateIssueAction, fetchIssuesAction } from '@/app/actions';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { useFilterStore } from '@/lib/store';
+import { useFilterStore, useUIStore } from '@/lib/store';
+import IssueDetailsModal from './IssueDetailsModal';
 
 // No props needed anymore as we fetch on client
 export default function Board() {
   const [enabled, setEnabled] = useState(false);
   const queryClient = useQueryClient();
   const { searchQuery, typeFilter, priorityFilter } = useFilterStore();
+  const { activeIssueId, setActiveIssueId } = useUIStore();
 
   useEffect(() => {
     const animation = requestAnimationFrame(() => setEnabled(true));
@@ -25,9 +27,11 @@ export default function Board() {
   const { data: issues = [] } = useQuery({
     queryKey: ['issues'],
     queryFn: fetchIssuesAction,
-    // No initialData needed, React Query handles loading state
-    // We could add a loading skeleton if we wanted
   });
+
+  const activeIssue = useMemo(() => 
+    issues.find(i => i.id === activeIssueId), 
+  [issues, activeIssueId]);
 
   const updateStatusMutation = useMutation({
     mutationFn: ({ id, status }: { id: string; status: IssueStatus }) => 
@@ -85,41 +89,50 @@ export default function Board() {
   }
 
   return (
-    <DragDropContext onDragEnd={onDragEnd}>
-      <div className="flex h-full gap-6 overflow-x-auto pb-4">
-        {COLUMNS.map((column) => {
-          const columnIssues = filteredIssues.filter((issue) => issue.status === column.id);
-          
-          return (
-            <div key={column.id} className="flex-shrink-0 w-80 flex flex-col bg-zinc-100 dark:bg-zinc-900/50 rounded-lg border border-zinc-200 dark:border-zinc-800 h-full max-h-full">
-              <div className="p-4 font-semibold text-sm text-zinc-500 dark:text-zinc-400 uppercase tracking-wider flex justify-between items-center">
-                {column.title}
-                <span className="bg-zinc-200 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-300 px-2 py-0.5 rounded-full text-xs">
-                  {columnIssues.length}
-                </span>
+    <>
+      <DragDropContext onDragEnd={onDragEnd}>
+        <div className="flex h-full gap-6 overflow-x-auto pb-4">
+          {COLUMNS.map((column) => {
+            const columnIssues = filteredIssues.filter((issue) => issue.status === column.id);
+            
+            return (
+              <div key={column.id} className="flex-shrink-0 w-80 flex flex-col bg-zinc-100 dark:bg-zinc-900/50 rounded-xl border border-zinc-200 dark:border-zinc-800 h-full max-h-full shadow-inner">
+                <div className="p-4 font-semibold text-sm text-zinc-500 dark:text-zinc-400 uppercase tracking-wider flex justify-between items-center">
+                  {column.title}
+                  <span className="bg-zinc-200 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-300 px-2 py-0.5 rounded-full text-xs font-bold">
+                    {columnIssues.length}
+                  </span>
+                </div>
+                
+                <Droppable droppableId={column.id}>
+                  {(provided, snapshot) => (
+                    <div
+                      {...provided.droppableProps}
+                      ref={provided.innerRef}
+                      className={`flex-1 p-2 overflow-y-auto min-h-[150px] transition-colors ${
+                        snapshot.isDraggingOver ? 'bg-blue-50/50 dark:bg-blue-900/10' : ''
+                      }`}
+                    >
+                      {columnIssues.map((issue, index) => (
+                        <IssueCard key={issue.id} issue={issue} index={index} />
+                      ))}
+                      {provided.placeholder}
+                    </div>
+                  )}
+                </Droppable>
               </div>
-              
-              <Droppable droppableId={column.id}>
-                {(provided, snapshot) => (
-                  <div
-                    {...provided.droppableProps}
-                    ref={provided.innerRef}
-                    className={`flex-1 p-2 overflow-y-auto min-h-[150px] transition-colors ${
-                      snapshot.isDraggingOver ? 'bg-blue-50/50 dark:bg-blue-900/10' : ''
-                    }`}
-                  >
-                    {columnIssues.map((issue, index) => (
-                      <IssueCard key={issue.id} issue={issue} index={index} />
-                    ))}
-                    {provided.placeholder}
-                  </div>
-                )}
-              </Droppable>
-            </div>
-          );
-        })}
-      </div>
-    </DragDropContext>
+            );
+          })}
+        </div>
+      </DragDropContext>
+
+      {activeIssue && (
+        <IssueDetailsModal 
+          issue={activeIssue} 
+          onClose={() => setActiveIssueId(null)} 
+        />
+      )}
+    </>
   );
 }
 

@@ -1,12 +1,18 @@
 'use client';
 
-import { Layout, Search, Settings, User, Filter } from 'lucide-react';
+import { Layout, Search, Settings, User as UserIcon, Filter, Loader2 } from 'lucide-react';
 import Link from 'next/link';
-import { useFilterStore } from '@/lib/store';
+import { useFilterStore, useUserStore } from '@/lib/store';
 import { IssuePriority, IssueType } from '@/lib/schema';
+import { useEffect } from 'react';
 
 export default function Sidebar() {
   const { searchQuery, setSearchQuery, typeFilter, setTypeFilter, priorityFilter, setPriorityFilter } = useFilterStore();
+  const { user, isLoading, fetchUser } = useUserStore();
+
+  useEffect(() => {
+    fetchUser();
+  }, [fetchUser]);
 
   return (
     <div className="w-64 bg-zinc-50 dark:bg-zinc-900 border-r border-zinc-200 dark:border-zinc-800 h-screen fixed left-0 top-0 flex flex-col z-10">
@@ -71,12 +77,30 @@ export default function Sidebar() {
 
       <div className="p-4 border-t border-zinc-200 dark:border-zinc-800">
         <div className="flex items-center space-x-3 px-3 py-2">
-          <div className="w-8 h-8 bg-zinc-200 dark:bg-zinc-700 rounded-full flex items-center justify-center">
-            <User className="w-4 h-4 text-zinc-500 dark:text-zinc-400" />
-          </div>
+          {isLoading ? (
+            <div className="w-8 h-8 flex items-center justify-center">
+              <Loader2 className="w-4 h-4 animate-spin text-zinc-500" />
+            </div>
+          ) : user ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img 
+              src={user.picture.thumbnail} 
+              alt="User" 
+              className="w-8 h-8 rounded-full border border-zinc-200 dark:border-zinc-700"
+            />
+          ) : (
+            <div className="w-8 h-8 bg-zinc-200 dark:bg-zinc-700 rounded-full flex items-center justify-center">
+              <UserIcon className="w-4 h-4 text-zinc-500 dark:text-zinc-400" />
+            </div>
+          )}
+          
           <div className="flex flex-col">
-            <span className="text-sm font-medium text-zinc-900 dark:text-zinc-100">User</span>
-            <span className="text-xs text-zinc-500 dark:text-zinc-400">Project Admin</span>
+            <span className="text-sm font-medium text-zinc-900 dark:text-zinc-100">
+              {user ? `${user.name.first} ${user.name.last}` : 'User'}
+            </span>
+            <span className="text-xs text-zinc-500 dark:text-zinc-400 truncate w-32">
+              {user ? user.email : 'Project Admin'}
+            </span>
           </div>
         </div>
       </div>
