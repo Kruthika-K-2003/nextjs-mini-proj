@@ -1,55 +1,50 @@
 import { create } from 'zustand';
-import { IssuePriority, IssueType, User } from './schema';
+import { IssuePriority, IssueType, User, UserSchema } from './schema';
 import axios from 'axios';
-import { UserSchema } from './schema';
 
-interface FilterState {
+interface AppState {
+  // Filter State
   searchQuery: string;
   typeFilter: IssueType | 'all';
   priorityFilter: IssuePriority | 'all';
   setSearchQuery: (query: string) => void;
   setTypeFilter: (type: IssueType | 'all') => void;
   setPriorityFilter: (priority: IssuePriority | 'all') => void;
-}
 
-interface UserState {
+  // User State
   user: User | null;
-  isLoading: boolean;
+  isLoadingUser: boolean;
   fetchUser: () => Promise<void>;
-}
 
-interface UIState {
+  // UI State
   activeIssueId: string | null;
   setActiveIssueId: (id: string | null) => void;
 }
 
-export const useFilterStore = create<FilterState>((set) => ({
+export const useStore = create<AppState>((set) => ({
+  // Filter
   searchQuery: '',
   typeFilter: 'all',
   priorityFilter: 'all',
-  setSearchQuery: (query) => set({ searchQuery: query }),
-  setTypeFilter: (type) => set({ typeFilter: type }),
-  setPriorityFilter: (priority) => set({ priorityFilter: priority }),
-}));
+  setSearchQuery: (q) => set({ searchQuery: q }),
+  setTypeFilter: (t) => set({ typeFilter: t }),
+  setPriorityFilter: (p) => set({ priorityFilter: p }),
 
-export const useUserStore = create<UserState>((set) => ({
+  // User
   user: null,
-  isLoading: false,
+  isLoadingUser: false,
   fetchUser: async () => {
-    set({ isLoading: true });
+    set({ isLoadingUser: true });
     try {
-      const response = await axios.get('https://randomuser.me/api/');
-      const userData = response.data.results[0];
-      const parsedUser = UserSchema.parse(userData);
-      set({ user: parsedUser, isLoading: false });
-    } catch (error) {
-      console.error('Failed to fetch user:', error);
-      set({ isLoading: false });
+      const { data } = await axios.get('https://randomuser.me/api/');
+      set({ user: UserSchema.parse(data.results[0]), isLoadingUser: false });
+    } catch (e) {
+      console.error(e);
+      set({ isLoadingUser: false });
     }
   },
-}));
 
-export const useUIStore = create<UIState>((set) => ({
+  // UI
   activeIssueId: null,
   setActiveIssueId: (id) => set({ activeIssueId: id }),
 }));
