@@ -1,12 +1,15 @@
-const isProd = process.env.NODE_ENV === 'production';
 const nextConfig = {
   reactStrictMode: true,
   images: {
-    unoptimized: true, // Disable default image optimization
+    unoptimized: true,
   },
-  assetPrefix: isProd ? '/nextjs-mini-proj/' : '',
-  basePath: isProd ? '/nextjs-mini-proj' : '',
-  output: 'export'
+  // assetPrefix and basePath are only needed for GitHub Pages
+  // assetPrefix: isProd ? '/nextjs-mini-proj/' : '',
+  // basePath: isProd ? '/nextjs-mini-proj' : '',
+  output: 'export',
+  experimental: {
+     allowedDevOrigins: ['*'],
+  },
 };
 
 export default nextConfig;
