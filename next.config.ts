@@ -6,10 +6,7 @@ const nextConfig = {
   },
   assetPrefix: isProd ? '/nextjs-mini-proj/' : '',
   basePath: isProd ? '/nextjs-mini-proj' : '',
-  output: 'export',
-  experimental: {
-     allowedDevOrigins: ['10.195.5.15:3000', 'localhost:3000'],
-  },
+  output: 'export'
 };
 
 export default nextConfig;
