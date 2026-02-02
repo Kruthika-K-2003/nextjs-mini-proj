@@ -19,6 +19,8 @@ interface AppState {
   // UI State
   activeIssueId: string | null;
   setActiveIssueId: (id: string | null) => void;
+  isSidebarOpen: boolean;
+  toggleSidebar: () => void;
 }
 
 export const useStore = create<AppState>((set) => ({
@@ -47,4 +49,6 @@ export const useStore = create<AppState>((set) => ({
   // UI
   activeIssueId: null,
   setActiveIssueId: (id) => set({ activeIssueId: id }),
+  isSidebarOpen: false,
+  toggleSidebar: () => set((state) => ({ isSidebarOpen: !state.isSidebarOpen })),
 }));

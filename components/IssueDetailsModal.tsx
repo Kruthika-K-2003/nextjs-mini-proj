@@ -26,7 +26,7 @@ export default function IssueDetailsModal({ issue, onClose }: { issue: Issue; on
   });
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm animate-in fade-in duration-200">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm animate-in fade-in duration-200 p-4">
       <div className="bg-white dark:bg-zinc-900 w-full max-w-4xl h-[85vh] rounded-xl shadow-2xl border border-zinc-200 dark:border-zinc-800 flex flex-col md:flex-row overflow-hidden animate-in zoom-in-95 duration-200">
         <div className="flex-1 flex flex-col h-full overflow-hidden">
           <div className="p-6 border-b border-zinc-200 dark:border-zinc-800 flex justify-between">

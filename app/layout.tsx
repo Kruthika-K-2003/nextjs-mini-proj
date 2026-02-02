@@ -18,7 +18,7 @@ export default function RootLayout({
       <body className="bg-white dark:bg-zinc-950 text-zinc-900 dark:text-zinc-100 antialiased">
         <Providers>
           <Sidebar />
-          <div className="pl-64 min-h-screen">
+          <div className="pl-0 md:pl-64 min-h-screen transition-all duration-300">
             {children}
           </div>
         </Providers>
