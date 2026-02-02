@@ -39,10 +39,24 @@ export const useStore = create<AppState>((set) => ({
     set({ isLoadingUser: true });
     try {
       const { data } = await axios.get('https://randomuser.me/api/');
-      set({ user: UserSchema.parse(data.results[0]), isLoadingUser: false });
+      const randomUser = data.results[0];
+      const fixedUser = {
+        ...randomUser,
+        name: { first: 'Kruthika', last: 'K' },
+        email: 'kruthika.k@shadesofweb.com',
+        picture: { thumbnail: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80' }
+      };
+      set({ user: UserSchema.parse(fixedUser), isLoadingUser: false });
     } catch (e) {
       console.error(e);
-      set({ isLoadingUser: false });
+      set({ 
+        user: {
+          name: { first: 'Kruthika', last: 'K' },
+          email: 'kruthika.k@shadesofweb.com',
+          picture: { thumbnail: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80' }
+        }, 
+        isLoadingUser: false 
+      });
     }
   },
 
