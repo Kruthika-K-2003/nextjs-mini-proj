@@ -1,12 +1,12 @@
-'use server';
-
-import { getIssues, saveIssues } from '@/lib/db';
 import { CreateIssueSchema, UpdateIssueSchema, Issue } from '@/lib/schema';
-import { revalidatePath } from 'next/cache';
+import { addIssue, deleteIssueFromStorage, getIssues, updateIssueInStorage } from '@/lib/storage';
 
-// We return plain objects for React Query to consume
+// These are now client-side functions, not Server Actions
+// We removed 'use server'
 
 export async function fetchIssuesAction() {
+  // Simulate network delay for realism if desired, but not strictly necessary
+  await new Promise(resolve => setTimeout(resolve, 300)); 
   return await getIssues();
 }
 
@@ -17,7 +17,6 @@ export async function createIssueAction(data: unknown) {
     throw new Error(result.error.message);
   }
 
-  const issues = await getIssues();
   const newIssue: Issue = {
     id: crypto.randomUUID(),
     title: result.data.title,
@@ -29,9 +28,7 @@ export async function createIssueAction(data: unknown) {
     updatedAt: new Date().toISOString(),
   };
 
-  issues.unshift(newIssue);
-  await saveIssues(issues);
-  revalidatePath('/');
+  await addIssue(newIssue);
   return newIssue;
 }
 
@@ -42,25 +39,16 @@ export async function updateIssueAction(id: string, data: unknown) {
     throw new Error(result.error.message);
   }
 
-  const issues = await getIssues();
-  const index = issues.findIndex((n) => n.id === id);
-  if (index === -1) throw new Error('Issue not found');
-
-  issues[index] = {
-    ...issues[index],
+  const updated = await updateIssueInStorage(id, {
     ...result.data,
     updatedAt: new Date().toISOString(),
-  };
+  });
 
-  await saveIssues(issues);
-  revalidatePath('/');
-  return issues[index];
+  if (!updated) throw new Error('Issue not found');
+  return updated;
 }
 
 export async function deleteIssueAction(id: string) {
-  const issues = await getIssues();
-  const filteredIssues = issues.filter((n) => n.id !== id);
-  await saveIssues(filteredIssues);
-  revalidatePath('/');
+  await deleteIssueFromStorage(id);
   return id;
 }

@@ -8,17 +8,8 @@ import { updateIssueAction, fetchIssuesAction } from '@/app/actions';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useFilterStore } from '@/lib/store';
 
-interface BoardProps {
-  initialIssues: Issue[];
-}
-
-const COLUMNS: { id: IssueStatus; title: string }[] = [
-  { id: 'todo', title: 'To Do' },
-  { id: 'in-progress', title: 'In Progress' },
-  { id: 'done', title: 'Done' },
-];
-
-export default function Board({ initialIssues }: BoardProps) {
+// No props needed anymore as we fetch on client
+export default function Board() {
   const [enabled, setEnabled] = useState(false);
   const queryClient = useQueryClient();
   const { searchQuery, typeFilter, priorityFilter } = useFilterStore();
@@ -31,10 +22,11 @@ export default function Board({ initialIssues }: BoardProps) {
     };
   }, []);
 
-  const { data: issues } = useQuery({
+  const { data: issues = [] } = useQuery({
     queryKey: ['issues'],
     queryFn: fetchIssuesAction,
-    initialData: initialIssues,
+    // No initialData needed, React Query handles loading state
+    // We could add a loading skeleton if we wanted
   });
 
   const updateStatusMutation = useMutation({
@@ -130,3 +122,9 @@ export default function Board({ initialIssues }: BoardProps) {
     </DragDropContext>
   );
 }
+
+const COLUMNS: { id: IssueStatus; title: string }[] = [
+  { id: 'todo', title: 'To Do' },
+  { id: 'in-progress', title: 'In Progress' },
+  { id: 'done', title: 'Done' },
+];
